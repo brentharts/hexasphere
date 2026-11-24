@@ -18,6 +18,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+[project.optional-dependencies]
+analysis = ["scipy", "matplotlib"]
+
 [project.urls]
 "Homepage" = "https://github.com/AllphinsPilot/hexasphere"
 "Bug Tracker" = "https://github.com/AllphinsPilot/hexasphere/issues"
