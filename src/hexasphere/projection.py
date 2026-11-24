@@ -63,7 +63,9 @@ class SnyderEAProj(Projection):
         v2 = self.base_poly.k[face]
 
         if np.all(X == v0):
-            X_P = X
+            # a vertex: the point on the face plane is VtoC * v0, not the unit
+            # vector itself (inv_project expects face-plane coordinates)
+            X_P = self.base_poly.VtoC * v0
         else:
             if (dist_to_V[1] - dist_to_V[2]) % 3 == 1:
                 # np.cross(v0.T, v1.T).dot(v2) >= 0:
@@ -125,8 +127,10 @@ class SnyderEAProj(Projection):
 
         X_P = eB.T.dot(P) + self.base_poly.FtoC * k
 
-        if np.all(X_P == self.base_poly.VtoC * v0):
-            return X_P
+        if np.linalg.norm(X_P - self.base_poly.VtoC * v0) < 1e-12:
+            # exactly at an icosahedron vertex (a pentagon centre): the general
+            # formula below divides 0/0 there, and the answer is v0 itself
+            return v0
 
         if (dist_to_V[1] - dist_to_V[2]) % 3 == 1:
             subface = np.stack(
