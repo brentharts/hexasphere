@@ -1,0 +1,20 @@
+{
+ "gnomonic": {
+  "tilings": 2,
+  "start_rms_strain": 0.05527667853611767,
+  "start_max_strain": 0.171679963483247,
+  "start_hat_to_pentagon_area": 1.9363577578055704,
+  "relaxed_rms_strain": 0.021399726138351328,
+  "relaxed_max_strain": 0.053390982617200405,
+  "relaxed_hat_to_pentagon_area": 2.3238966932038783
+ },
+ "snyder": {
+  "tilings": 2,
+  "start_rms_strain": 0.0489664099142752,
+  "start_max_strain": 0.12860665100242719,
+  "start_hat_to_pentagon_area": 1.7525403334971226,
+  "relaxed_rms_strain": 0.02139972614944477,
+  "relaxed_max_strain": 0.0533909571223911,
+  "relaxed_hat_to_pentagon_area": 2.3238967540128845
+ }
+}
