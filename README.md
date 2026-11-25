@@ -1,6 +1,90 @@
 # hexasphere
 A module to create (almost) hexagonal grids of variable size on a sphere, fully implemented in python.
 
+## The Hat Trick ball: the aperiodic hat tile on a hexagonal grid of the sphere
+
+![hat trick ball](docs/hat_trick_ball.png)
+
+The `n = 2` grid has 92 tiles: 12 pentagons and 80 hexagons (the Goldberg polyhedron GP(3,0)). Cut every hexagon
+into 6 kites and there are 480 kites, exactly 60 *hats* of 8 kites each. The **Hat Trick** ball has 72 panels:
+60 hats (David Smith's aperiodic monotile) and 12 pentagons. A *patch* is a pentagon with 5 hats around it, and
+12 patches close into the ball. `hexasphere.hattrick` finds the hat tiling instead of typing it in:
+
+```python
+from hexasphere import hexgrid, projection
+from hexasphere.hattrick import HatBall
+
+ball = HatBall.from_frequency(3)                   # or: HatBall.from_grid(grid, n=2) on a hexasphere grid
+ball.relax()                                       # put the kite corners on the sphere
+ball.report()                                      # panel counts, areas, strain
+ball.panels()                                      # outlines of the 72 panels as unit vectors
+```
+
+1. **The hat is a polykite** (8 kites of the deltoidal trihexagonal tiling; edges 1 and sqrt 3, one straight edge
+   of length 2). `hat_adjacency()` stores it as kite adjacencies, and `flat_hat()` lays it out in the plane and
+   checks that it closes up and has the hat's 13 interior angles (90 x4, 120 x5, 240 x2, 270 x2).
+2. **Kites on the grid.** Each triangle of the dual triangulation is cut into 3 kites; the 12 pentagon tiles are
+   left as holes. `embed_hat` places the hat on the kite surface in every orientation-preserving way: 360 placements.
+3. **Exact cover.** Knuth's algorithm X over orbits of the icosahedral rotation group (60 rotations, taken from
+   `chiral.icosahedral_rotations` for a grid) finds the hat tilings invariant under it. There are exactly **two**; both
+   give every pentagon exactly 5 hats, and the 60 hats are one orbit (a hat has no symmetry, and it is chiral, so
+   only rotations act). Both have the same 40-kite patch outline and cut it into hats differently.
+4. **The ledger closes with only the pentagons.** Hats put 240 degrees at every pentagon corner (two hat corners of
+   120), so a pentagon is a 120-degree pentagon with curvature K = 60 degrees, and 12 x 60 = 720 is the whole
+   Gauss-Bonnet total: the hats meet each other with no angle deficit at all.
+5. **Geometry.** `relax` moves every kite corner on the unit sphere so each kite stays as close as possible to the flat
+   kite (sides 1 and sqrt 3, diagonals 2 and sqrt 3) and straight lines stay straight.
+
+| result (variant 0) | value |
+|---|---|
+| panels | 60 hats + 12 pentagons = 72 |
+| rms / max kite strain | 2.1 % / 5.3 % |
+| hat area spread (60 hats) | < 1e-6 |
+| hat : pentagon area | 2.32 |
+| total area | 4 pi |
+
+![patch](docs/hat_trick_patch.png)
+
+The build starts from the tile centres of any hexasphere grid, and the relaxation forgets the projection:
+`examples/hat_trick_grids.py` starts at 5.5 % rms strain (Gnomonic) or 4.9 % (Snyder) and both end at 2.1 %.
+
+![variants](docs/hat_trick_variants.png)
+
+![strain](docs/hat_trick_strain.png)
+
+### Only one resolution works
+
+The number of hats is 7.5 (f^2 - 1) with f = n + 1, an integer only for odd f. For f = 3 it works. For f = 5, 7, 9 the
+exact-cover search (`examples/hat_trick_frequencies.py`, `docs/hat_trick_frequencies.json`) finds **no tiling at all**:
+
+| f (n) | tiles | hats | I | T | C5 | no symmetry | no symmetry, either hand |
+|---|---|---|---|---|---|---|---|
+| 3 (2) | 92 | 60 | 2 | 2 | 16 | many | many |
+| 5 (4) | 252 | 180 | none | none | none | none | none |
+| 7 (6) | 492 | 360 | none | none | none | none | none |
+| 9 (8) | 812 | 600 | none | none | none | none | not exhausted |
+
+"none" means the search ran to exhaustion. The last cell ran 500000 search nodes without finding a tiling and
+without finishing. This is a statement about these kite surfaces (Goldberg polyhedra GP(f,0), 12 pentagonal holes,
+hats and, in the last column, their mirror images), not about hat tilings in general. GP(m,n) with n > 0 is not covered.
+
+### Scripts and tests
+
+    python examples/hat_trick_ball.py [--variant 1] [--grid gnomonic|snyder] [--mirror]   # figures + docs/hat_trick_ball.json
+    python examples/hat_trick_frequencies.py                                              # the table above
+    python examples/hat_trick_grids.py                                                    # Gnomonic vs Snyder start geometry
+    python -m pytest tests/test_hattrick.py
+
+Needs numpy, scipy and matplotlib (`pip install -e ".[analysis]"`).
+
+**Caveats.** The design is a reconstruction from the description "a pentagon with 5 hats around it, 12 patches make a
+ball" (no panel drawing was used), so which of the two tilings, and which hand (`--mirror`), matches a real ball has
+to be checked by eye. The panels are slightly strained, not rigid flat hats. The pattern repeats under the
+icosahedral group, so it is a hat *demonstration*, not an aperiodic tiling of the sphere. The same construction is
+in the [ballgen](https://github.com/brentharts/ballgen) repository as `the_hat_trick_ball.py`.
+
+---
+
 ## description of the grid
 
 ### base polyhedron
