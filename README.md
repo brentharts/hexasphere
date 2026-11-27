@@ -1,5 +1,7 @@
 # hexasphere
-A module to create (almost) hexagonal grids of variable size on a sphere, fully implemented in python.
+
+paper: "The tetrahedral Trionda and the aperiodic Hat Trick on the sphere"
+https://doi.org/10.21203/rs.3.rs-11875344/v1
 
 ## The Hat Trick ball: the aperiodic hat tile on a hexagonal grid of the sphere
 
